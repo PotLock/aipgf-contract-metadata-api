@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { providers } from "near-api-js";
 
-import { ExtractMetadata } from "@/ai/rust-metadata-agent";
+import { ExtractRustMetadata } from "@/ai/metadata-agent";
 
 export const maxDuration = 300;
 
@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
         const res = await response.text();
         mergeCode += res + "\n\n";
       }
-      const result = await ExtractMetadata({ mergeCode, account, methods });
+      const result = await ExtractRustMetadata({ mergeCode, account, methods });
       return NextResponse.json(JSON.parse(result), { status: 200 });
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
