@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.72",
+    "@aptos-labs/ts-sdk": "^1.33.0",
     "ai": "^3.4.33",
     "near-api-js": "^5.0.1",
     "next": "15.0.3",
