@@ -69,7 +69,14 @@ export async function GET(req: NextRequest) {
         mergeCode += res + "\n\n";
       }
       const result = await ExtractRustMetadata({ mergeCode, account, methods });
-      return NextResponse.json(JSON.parse(result), { status: 200 });
+      return NextResponse.json(JSON.parse(result), {
+        status: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
+      });
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
