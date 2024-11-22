@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
   const network = req.nextUrl.searchParams.get("network") || "";
 
   try {
-    if (chain == "near" && network == "mainnet") {
+    if (chain.toLowerCase() == "near" && network.toLowerCase() == "mainnet") {
       const response = await fetch(
         `https://api.nearblocks.io/v1/account/${account}/contract/parse`
       );
@@ -61,7 +61,7 @@ export async function GET(req: NextRequest) {
         },
       });
     }
-    if (chain == "eth" && network == "mainnet") {
+    if (chain.toLowerCase() == "eth" && network.toLowerCase() == "mainnet") {
       const response = await fetch(
         `https://api.etherscan.io/api?module=contract&action=getabi&address=${account}&apikey=${process.env.ETH_SCAN_API}`
       );
@@ -78,7 +78,7 @@ export async function GET(req: NextRequest) {
         },
       });
     }
-    if (chain == "aptos" && network == "mainnet") {
+    if (chain.toLowerCase() == "aptos" && network.toLowerCase() == "mainnet") {
       const response = await fetch(
         `https://api.mainnet.aptoslabs.com/v1/accounts/${account}/modules?limit=1000`
       );
