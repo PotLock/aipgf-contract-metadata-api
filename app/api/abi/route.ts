@@ -52,7 +52,14 @@ export async function GET(req: NextRequest) {
 
       const data = await response.json();
 
-      return NextResponse.json(data.contract[0].schema, { status: 200 });
+      return NextResponse.json(data.contract[0].schema, {
+        status: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
+      });
     }
     if (chain == "eth" && network == "mainnet") {
       const response = await fetch(
@@ -62,7 +69,14 @@ export async function GET(req: NextRequest) {
       const data = await response.json();
       const res = JSON.parse(data.result);
       const nearABI = convertDataToNearABI(res, account);
-      return NextResponse.json(nearABI, { status: 200 });
+      return NextResponse.json(nearABI, {
+        status: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
+      });
     }
     if (chain == "aptos" && network == "mainnet") {
       const response = await fetch(
