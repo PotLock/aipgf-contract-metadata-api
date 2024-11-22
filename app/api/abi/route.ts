@@ -71,7 +71,14 @@ export async function GET(req: NextRequest) {
       const data = await response.json();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const res = await data.map((data: any) => data.abi);
-      return NextResponse.json(res, { status: 200 });
+      return NextResponse.json(res, {
+        status: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
+      });
     }
     return NextResponse.json(
       { error: "Unsupported chain or network" },
