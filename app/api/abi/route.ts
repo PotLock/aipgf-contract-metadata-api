@@ -61,7 +61,7 @@ export async function GET(req: NextRequest) {
         },
       });
     }
-    if (chain.toLowerCase() == "eth" && network.toLowerCase() == "mainnet") {
+    if (chain.toLowerCase() == "ethereum" && network.toLowerCase() == "mainnet") {
       const response = await fetch(
         `https://api.etherscan.io/api?module=contract&action=getabi&address=${account}&apikey=${process.env.ETH_SCAN_API}`
       );
