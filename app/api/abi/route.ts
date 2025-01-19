@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { RpcProvider } from "starknet";
 export const maxDuration = 300;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -86,6 +87,22 @@ export async function GET(req: NextRequest) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const res = await data.map((data: any) => data.abi);
       return NextResponse.json(res, {
+        status: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
+      });
+    }
+    if (chain.toLowerCase() == "starknet" && network.toLowerCase() == "mainnet") {
+      const STARKNET_NODE_URL = process.env.STARKNET_NODE_URL;
+      const provider = new RpcProvider({ nodeUrl: `${STARKNET_NODE_URL}` });
+      const { abi } = await provider.getClassAt(account);
+      if (abi === undefined) {
+        throw new Error('No ABI found.');
+      }
+      return NextResponse.json(abi, {
         status: 200,
         headers: {
           "Access-Control-Allow-Origin": "*",
