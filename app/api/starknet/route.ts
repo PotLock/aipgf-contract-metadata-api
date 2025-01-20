@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
         methods,
       });
 
-      return NextResponse.json({return : JSON.parse(result)}, {
+      return NextResponse.json({returns : JSON.parse(result)}, {
         status: 200,
         headers: {
           "Access-Control-Allow-Origin": "*",
