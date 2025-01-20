@@ -18,7 +18,20 @@ async function fetchAbiFromEthereum(contractId: string) {
     const data = await response.json();
     return JSON.parse(data.result);
 }
-
+function convertBigIntToString(data: any): any {
+    if (typeof data === 'bigint') {
+        return data.toString();
+    }
+    if (Array.isArray(data)) {
+        return data.map(convertBigIntToString);
+    }
+    if (typeof data === 'object' && data !== null) {
+        return Object.fromEntries(
+            Object.entries(data).map(([key, value]) => [key, convertBigIntToString(value)])
+        );
+    }
+    return data; // Return other types as is
+}
 export async function POST(req: NextRequest) {
     const body = await req.json();
     const { args, network, method_name, contract_id, chain } = body;
@@ -73,16 +86,17 @@ export async function POST(req: NextRequest) {
             });
         } else if (chain === "starknet") {
             const STARKNET_NODE_URL = process.env.STARKNET_NODE_URL;
-
             const provider = new RpcProvider({ nodeUrl: `${STARKNET_NODE_URL}` });
             const { abi } = await provider.getClassAt(contract_id);
+            console.log(abi);
             if (abi === undefined) {
                 throw new Error('no abi.');
             }
             const contract = new Contract(abi, contract_id, provider);
-            const result = await contract[method_name](...args);
-
-            return NextResponse.json(result, {
+            console.log(args)
+            const result = await contract.call(method_name, Object.values(args));
+            console.log(result);
+            return NextResponse.json(convertBigIntToString(result), {
                 status: 200,
                 headers: {
                     "Access-Control-Allow-Origin": "*",
@@ -95,6 +109,7 @@ export async function POST(req: NextRequest) {
         }
     } catch (error: any
     ) {
+        console.log(error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
