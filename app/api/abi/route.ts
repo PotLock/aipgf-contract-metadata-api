@@ -40,43 +40,53 @@ function convertEVMToNearABI(input: any, account: string) {
   };
 }
 function convertStarknetToNearABI(starknetAbi: any, account: string): any {
-    return {
-        schema_version: "0.4.0",
-        metadata: {
-            name: account,
-            version: "0.1.0",
-            build: {
-                compiler: "solidity",
-                builder: "custom-builder",
-            },
-        },
-        body: {
-            functions: starknetAbi
-                .filter((entry: any) => entry.type === 'function')
-                .map((item: any) => ({
-                    name: item.name,
-                    kind: item.stateMutability === "view" ? "view" : "call",
-                    params: {
-                        serialization_type: "json",
-                        args: item.inputs && item.inputs.map((input: any) => ({
-                            name: input.name,
-                            type_schema: { type: convertType(input.type) },
-                        })),
-                    },
-                })),
-        },
-    };
+  return {
+    schema_version: "0.4.0",
+    metadata: {
+      name: account,
+      version: "0.1.0",
+      build: {
+        compiler: "cairo",
+        builder: "custom-builder",
+      },
+    },
+    body: {
+      functions: starknetAbi
+        .filter((entry: any) => entry.type === 'function')
+        .map((item: any) => ({
+          name: item.name,
+          kind: item.state_mutability === "view" ? "view" : "call",
+          params: {
+            serialization_type: "json",
+            args: item.inputs && item.inputs.map((input: any) => ({
+              name: input.name,
+              type_schema: { type: convertType(input.type) },
+            })),
+          },
+        })),
+    },
+  };
 }
 
 function convertType(starknetType: string): string {
-    // Add type conversion logic here
-    switch (starknetType) {
-        case 'felt':
-            return 'u128';
-        // Add more type conversions as needed
-        default:
-            return starknetType;
-    }
+  // Add type conversion logic here
+  switch (starknetType) {
+    case 'core::felt252':
+      return 'u128';
+    case 'core::integer::u8':
+      return 'u8';
+    case 'core::integer::u256':
+      return 'u256';
+    case 'core::integer::u64':
+      return 'u64';
+    case 'core::bool':
+      return 'bool';
+    case 'core::starknet::contract_address::ContractAddress':
+      return 'string';
+    // Add more type conversions as needed
+    default:
+      return starknetType;
+  }
 }
 export async function GET(req: NextRequest) {
   const account = req.nextUrl.searchParams.get("account") || "";
