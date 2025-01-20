@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
       }
 
       const result = await ExtractCairoMetadata({
-        abi,
+        JSON.stringify(abi),
         account,
         methods,
       });
