@@ -3,7 +3,7 @@ import { RpcProvider } from "starknet";
 export const maxDuration = 300;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function convertDataToNearABI(input: any, account: string) {
+function convertEVMToNearABI(input: any, account: string) {
   return {
     schema_version: "0.4.0",
     metadata: {
@@ -39,7 +39,38 @@ function convertDataToNearABI(input: any, account: string) {
     },
   };
 }
+function convertStarknetToNearABI(starknetAbi: any): any {
+  const nearAbi = starknetAbi.map((entry: any) => {
+    if (entry.type === 'function') {
+      return {
+        type: 'function',
+        name: entry.name,
+        inputs: entry.inputs.map((input: any) => ({
+          name: input.name,
+          type: convertType(input.type),
+        })),
+        outputs: entry.outputs.map((output: any) => ({
+          name: output.name,
+          type: convertType(output.type),
+        })),
+      };
+    }
+    // Handle other types if necessary
+    return entry;
+  });
 
+  return nearAbi;
+}
+function convertType(starknetType: string): string {
+  // Add type conversion logic here
+  switch (starknetType) {
+    case 'felt':
+      return 'u128';
+    // Add more type conversions as needed
+    default:
+      return starknetType;
+  }
+}
 export async function GET(req: NextRequest) {
   const account = req.nextUrl.searchParams.get("account") || "";
   const chain = req.nextUrl.searchParams.get("chain") || "";
@@ -69,7 +100,7 @@ export async function GET(req: NextRequest) {
 
       const data = await response.json();
       const res = JSON.parse(data.result);
-      const nearABI = convertDataToNearABI(res, account);
+      const nearABI = convertEVMToNearABI(res, account);
       return NextResponse.json(nearABI, {
         status: 200,
         headers: {
@@ -102,7 +133,7 @@ export async function GET(req: NextRequest) {
       if (abi === undefined) {
         throw new Error('No ABI found.');
       }
-      return NextResponse.json(abi, {
+      return NextResponse.json(convertStarknetToNearABI(abi), {
         status: 200,
         headers: {
           "Access-Control-Allow-Origin": "*",
