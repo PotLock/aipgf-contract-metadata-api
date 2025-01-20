@@ -39,37 +39,44 @@ function convertEVMToNearABI(input: any, account: string) {
     },
   };
 }
-function convertStarknetToNearABI(starknetAbi: any): any {
-  const nearAbi = starknetAbi.map((entry: any) => {
-    if (entry.type === 'function') {
-      return {
-        type: 'function',
-        name: entry.name,
-        inputs: entry.inputs.map((input: any) => ({
-          name: input.name,
-          type: convertType(input.type),
-        })),
-        outputs: entry.outputs.map((output: any) => ({
-          name: output.name,
-          type: convertType(output.type),
-        })),
-      };
-    }
-    // Handle other types if necessary
-    return entry;
-  });
-
-  return nearAbi;
+function convertStarknetToNearABI(starknetAbi: any, account: string): any {
+    return {
+        schema_version: "0.4.0",
+        metadata: {
+            name: account,
+            version: "0.1.0",
+            build: {
+                compiler: "solidity",
+                builder: "custom-builder",
+            },
+        },
+        body: {
+            functions: starknetAbi
+                .filter((entry: any) => entry.type === 'function')
+                .map((item: any) => ({
+                    name: item.name,
+                    kind: item.stateMutability === "view" ? "view" : "call",
+                    params: {
+                        serialization_type: "json",
+                        args: item.inputs && item.inputs.map((input: any) => ({
+                            name: input.name,
+                            type_schema: { type: convertType(input.type) },
+                        })),
+                    },
+                })),
+        },
+    };
 }
+
 function convertType(starknetType: string): string {
-  // Add type conversion logic here
-  switch (starknetType) {
-    case 'felt':
-      return 'u128';
-    // Add more type conversions as needed
-    default:
-      return starknetType;
-  }
+    // Add type conversion logic here
+    switch (starknetType) {
+        case 'felt':
+            return 'u128';
+        // Add more type conversions as needed
+        default:
+            return starknetType;
+    }
 }
 export async function GET(req: NextRequest) {
   const account = req.nextUrl.searchParams.get("account") || "";
@@ -133,7 +140,7 @@ export async function GET(req: NextRequest) {
       if (abi === undefined) {
         throw new Error('No ABI found.');
       }
-      return NextResponse.json(convertStarknetToNearABI(abi), {
+      return NextResponse.json(convertStarknetToNearABI(abi, account), {
         status: 200,
         headers: {
           "Access-Control-Allow-Origin": "*",
