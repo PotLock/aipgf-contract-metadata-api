@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
       if (!abi) {
         throw new Error('No ABI found.');
       }
-
+      console.log(JSON.stringify(abi));
       const result = await ExtractCairoMetadata({
         abi:JSON.stringify(abi),
         account,
