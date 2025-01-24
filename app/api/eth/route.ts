@@ -12,13 +12,15 @@ export async function GET(req: NextRequest) {
   try {
     if (network == "mainnet") {
       const response = await fetch(
-        `https://api.etherscan.io/api?module=contract&action=getsourcecode&address=${account}&apikey=${process.env.ETH_SCAN_API}`
+        `https://api.etherscan.io/api?module=contract&action=getabi&address=${account}&apikey=${process.env.ETH_SCAN_API}`
       );
 
       const data = await response.json();
-      const source = data.result[0].SourceCode;
+      console.log(data);
+      const abi = data.result[0];
+      console.log(abi);
       const result = await ExtractSolidityMetadata({
-        source,
+        abi,
         account,
         methods,
       });
