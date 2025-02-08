@@ -50,3 +50,14 @@ export async function ExtractMoveMetadata({ abi, packageId, methods, moduleName 
   });
   return text;
 }
+export async function ExtractMoveObjectMetadata({ objectData, id, type }: any) {
+  const { text } = await generateText({
+    model: openai("gpt-4-turbo"),
+    system:
+      `You are a move  developer.  ` +
+      `When the user gives the data from object value . Provide your response as a JSON object with the following schema: ` +
+      ` returns [{ id:${id}  , description : description with method 100 words limit `,
+    prompt: `Your response will not be in Markdown format, only JSON.Here is abi : ${objectData} , type : ${type}  `,
+  });
+  return text;
+}
