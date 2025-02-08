@@ -13,6 +13,7 @@
     "@ai-sdk/openai": "^0.0.72",
     "@aptos-labs/ts-sdk": "^1.33.0",
     "@ethersproject/providers": "^5.7.2",
+    "@mysten/sui": "^1.21.2",
     "ai": "^3.4.33",
     "ethers": "^6.13.5",
     "near-api-js": "^5.0.1",

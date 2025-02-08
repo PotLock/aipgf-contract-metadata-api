@@ -38,3 +38,15 @@ export async function ExtractCairoMetadata({ abi, account, methods }: any) {
   });
   return text;
 }
+
+export async function ExtractMoveMetadata({ abi, account, methods }: any) {
+  const { text } = await generateText({
+    model: openai("gpt-4-turbo"),
+    system:
+      `You are a move smartcontract developer.  ` +
+      `When the user gives the abi from smartcontract. Provide your response as a JSON object with the following schema: ` +
+      ` returns [{ account:${account}, method: ${methods}  , description : description with method 100 words limit ,  args: [ name: Argument name , type : data types ,description }} ]`,
+    prompt: `Your response will not be in Markdown format, only JSON.Here is abi : ${abi} , method : ${methods}  `,
+  });
+  return text;
+}

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { ExtractRustMetadata } from "@/ai/metadata-agent";
+import { ExtractMoveMetadata } from "@/ai/metadata-agent";
+import { SuiClient } from "@mysten/sui/client";
 
 export const maxDuration = 300;
 
@@ -9,15 +10,17 @@ export async function GET(req: NextRequest) {
   const account = req.nextUrl.searchParams.get("account") || "";
   const methods = req.nextUrl.searchParams.get("methods") || "";
   const network = req.nextUrl.searchParams.get("network") || "";
-
+  const moduleName = req.nextUrl.searchParams.get("moduleName") || "";
   try {
     if (network == "mainnet") {
-      const response = await fetch(
-        `https://api.nearblocks.io/v1/account/${account}/contract/parse`
-      );
 
-      const data: any = await response.json();
-      const result = await ExtractRustMetadata({ abi: data.contract[0].schema, account, methods });
+      const client = new SuiClient({ url: "https://fullnode.mainnet.sui.io" });
+      const res = await client.getNormalizedMoveModule({
+        package: account,
+        module: moduleName,
+      });
+      const data: any = res;
+      const result = await ExtractMoveMetadata({ abi: data.contract[0].schema, account, methods, moduleName });
       console.log(result);
       return NextResponse.json(JSON.parse(result), {
         status: 200,

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { providers as nearProviders } from "near-api-js";
 import { ethers } from "ethers";
 import { RpcProvider, Contract, Account, ec, json } from 'starknet';
+import { Transaction } from "@mysten/sui/transactions";
+import { SuiClient } from "@mysten/sui/client";
 
 async function fetchAbiFromNear(account: string) {
     const response = await fetch(
@@ -34,7 +36,7 @@ function convertBigIntToString(data: any): any {
 }
 export async function POST(req: NextRequest) {
     const body = await req.json();
-    const { args, network, method_name, contract_id, chain } = body;
+    const { args, network, method_name, contract_id, chain, objectId } = body;
     try {
         if (chain === "near") {
             const abi = await fetchAbiFromNear(contract_id);
@@ -93,10 +95,25 @@ export async function POST(req: NextRequest) {
                 throw new Error('no abi.');
             }
             const contract = new Contract(abi, contract_id, provider);
-            console.log(args)
             const result = await contract.call(method_name, Object.values(args));
-            console.log(result);
             return NextResponse.json(convertBigIntToString(result), {
+                status: 200,
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+                    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+                },
+            });
+        } else if (chain === "sui") {
+            const client = new SuiClient({ url: "https://fullnode.mainnet.sui.io" });
+
+            const objectData = await client.getObject({
+                id: objectId,
+                options: {
+                    showContent: true
+                }
+            });
+            return NextResponse.json(objectData, {
                 status: 200,
                 headers: {
                     "Access-Control-Allow-Origin": "*",
