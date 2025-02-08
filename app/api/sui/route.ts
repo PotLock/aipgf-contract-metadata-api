@@ -7,20 +7,24 @@ export const maxDuration = 300;
 
 
 export async function GET(req: NextRequest) {
-  const account = req.nextUrl.searchParams.get("account") || "";
+  const packageId = req.nextUrl.searchParams.get("packageId") || "";
   const methods = req.nextUrl.searchParams.get("methods") || "";
   const network = req.nextUrl.searchParams.get("network") || "";
   const moduleName = req.nextUrl.searchParams.get("moduleName") || "";
+  const client = new SuiClient({ url: "https://fullnode.mainnet.sui.io" });
+  console.log(packageId, moduleName);
+  const res = await client.getNormalizedMoveModule({
+    package: packageId,
+    module: moduleName,
+  });
+  const data: any = res;
+  console.log(data);
   try {
+
     if (network == "mainnet") {
 
-      const client = new SuiClient({ url: "https://fullnode.mainnet.sui.io" });
-      const res = await client.getNormalizedMoveModule({
-        package: account,
-        module: moduleName,
-      });
-      const data: any = res;
-      const result = await ExtractMoveMetadata({ abi: data.contract[0].schema, account, methods, moduleName });
+
+      const result = await ExtractMoveMetadata({ abi: data, packageId, methods, moduleName });
       console.log(result);
       return NextResponse.json(JSON.parse(result), {
         status: 200,
