@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
           module: innerModuleName,
         });
 
-        const result = await ExtractMoveObjectMetadata({ objectData: JSON.stringify(objectData), type: objectData.data.type, id : packageId });
+        const result = await ExtractMoveObjectMetadata({ objectData: JSON.stringify(objectData), type: objectData.data.type, id: packageId });
 
         return NextResponse.json(JSON.parse(result), {
           status: 200,
@@ -66,13 +66,27 @@ export async function GET(req: NextRequest) {
           },
         });
       } else {
-        return NextResponse.json({ error: "Unsupported object type" }, { status: 400 });
+        return NextResponse.json({ error: "Unsupported object type" }, {
+          status: 400,
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          }
+        });
       }
     } else {
       throw new Error("Unsupported network");
     }
   } catch (error: any) {
     console.log(error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, {
+      status: 500,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      }
+    });
   }
 }
