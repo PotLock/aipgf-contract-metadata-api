@@ -56,7 +56,7 @@ export async function ExtractMoveObjectMetadata({ objectData, id, type }: any) {
     system:
       `You are a move  developer.  ` +
       `When the user gives the data from object value . Provide your response as a JSON object with the following schema: ` +
-      ` returns [{ id:${id}  , description : description with method 100 words limit `,
+      ` returns [{ objectId:${id}  , description : description with method 100 words limit `,
     prompt: `Your response will not be in Markdown format, only JSON.Here is abi : ${objectData} , type : ${type}  `,
   });
   return text;
